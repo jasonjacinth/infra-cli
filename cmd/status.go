@@ -39,23 +39,23 @@ func runStatus(cmd *cobra.Command, args []string) {
 	case "production":
 		runK8sStatus(app)
 	default:
-		fmt.Fprintf(os.Stderr, "❌ Unknown environment: %s (use 'local' or 'production')\n", env)
+		fmt.Fprintf(os.Stderr, "Unknown environment: %s (use 'local' or 'production')\n", env)
 		os.Exit(1)
 	}
 }
 
 func runLocalStatus(app string) {
 	if !shell.IsInstalled("docker") {
-		fmt.Fprintln(os.Stderr, "❌ Docker is not installed. Run 'infra-cli setup' to check dependencies.")
+		fmt.Fprintln(os.Stderr, "Docker is not installed. Run 'infra-cli setup' to check dependencies.")
 		os.Exit(1)
 	}
 
-	fmt.Println("📦 Docker Container Status")
+	fmt.Println("Docker Container Status")
 	fmt.Println(strings.Repeat("─", 50))
 
 	output, err := shell.Run("docker", "ps", "--format", "table {{.Names}}\t{{.Status}}")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ Failed to get Docker status. Is Docker Desktop running?\n   %s\n", err)
+		fmt.Fprintf(os.Stderr, "Failed to get Docker status. Is Docker Desktop running?\n   %s\n", err)
 		os.Exit(1)
 	}
 
@@ -82,11 +82,11 @@ func runLocalStatus(app string) {
 
 func runK8sStatus(app string) {
 	if !shell.IsInstalled("kubectl") {
-		fmt.Fprintln(os.Stderr, "❌ kubectl is not installed. Run 'infra-cli setup' to check dependencies.")
+		fmt.Fprintln(os.Stderr, "kubectl is not installed. Run 'infra-cli setup' to check dependencies.")
 		os.Exit(1)
 	}
 
-	fmt.Println("☸️  Kubernetes Pod Status")
+	fmt.Println("Kubernetes Pod Status")
 	fmt.Println(strings.Repeat("─", 50))
 
 	var output string
@@ -100,7 +100,7 @@ func runK8sStatus(app string) {
 	}
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ Failed to get pod status.\n   %s\n", err)
+		fmt.Fprintf(os.Stderr, "Failed to get pod status.\n   %s\n", err)
 		os.Exit(1)
 	}
 

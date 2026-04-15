@@ -39,46 +39,46 @@ func runRollback(cmd *cobra.Command, args []string) {
 	case "production":
 		runK8sRollback(app)
 	default:
-		fmt.Fprintf(os.Stderr, "❌ Unknown environment: %s (use 'local' or 'production')\n", env)
+		fmt.Fprintf(os.Stderr, "Unknown environment: %s (use 'local' or 'production')\n", env)
 		os.Exit(1)
 	}
 }
 
 func runLocalRollback(app string) {
 	if !shell.IsInstalled("docker") {
-		fmt.Fprintln(os.Stderr, "❌ Docker is not installed. Run 'infra-cli setup' to check dependencies.")
+		fmt.Fprintln(os.Stderr, "Docker is not installed. Run 'infra-cli setup' to check dependencies.")
 		os.Exit(1)
 	}
 
-	fmt.Printf("⏪ Rolling back '%s' locally...\n\n", app)
+	fmt.Printf("Rolling back '%s' locally...\n\n", app)
 
 	// For Docker, rollback means restarting the container with its previous image.
 	// We stop the current container and restart via docker-compose.
 	_, err := shell.Run("docker", "restart", app)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ Local rollback failed.\n   %s\n", err)
+		fmt.Fprintf(os.Stderr, "Local rollback failed.\n   %s\n", err)
 		fmt.Fprintln(os.Stderr, "\n   Make sure the container exists. Check with: infra-cli status")
 		os.Exit(1)
 	}
 
-	fmt.Printf("✅ Container '%s' has been restarted.\n", app)
+	fmt.Printf("Container '%s' has been restarted.\n", app)
 }
 
 func runK8sRollback(app string) {
 	if !shell.IsInstalled("kubectl") {
-		fmt.Fprintln(os.Stderr, "❌ kubectl is not installed. Run 'infra-cli setup' to check dependencies.")
+		fmt.Fprintln(os.Stderr, "kubectl is not installed. Run 'infra-cli setup' to check dependencies.")
 		os.Exit(1)
 	}
 
-	fmt.Printf("⏪ Rolling back deployment '%s' on Kubernetes...\n\n", app)
+	fmt.Printf("Rolling back deployment '%s' on Kubernetes...\n\n", app)
 
 	output, err := shell.Run("kubectl", "rollout", "undo", "deployment/"+app)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ Kubernetes rollback failed.\n   %s\n", err)
+		fmt.Fprintf(os.Stderr, "Kubernetes rollback failed.\n   %s\n", err)
 		fmt.Fprintln(os.Stderr, "\n   Make sure the deployment exists. Check with: infra-cli status -e production")
 		os.Exit(1)
 	}
 
 	fmt.Println(output)
-	fmt.Printf("\n✅ Deployment '%s' rolled back successfully.\n", app)
+	fmt.Printf("\nDeployment '%s' rolled back successfully.\n", app)
 }

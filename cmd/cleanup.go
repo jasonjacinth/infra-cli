@@ -29,21 +29,21 @@ func init() {
 
 func runCleanup(cmd *cobra.Command, args []string) {
 	if !shell.IsInstalled("kubectl") {
-		fmt.Fprintln(os.Stderr, "❌ kubectl is not installed. Run 'infra-cli setup' to check dependencies.")
+		fmt.Fprintln(os.Stderr, "kubectl is not installed. Run 'infra-cli setup' to check dependencies.")
 		os.Exit(1)
 	}
 
 	dir, _ := cmd.Flags().GetString("dir")
 
-	fmt.Printf("🧹 Removing resources defined in %s...\n\n", dir)
+	fmt.Printf("Removing resources defined in %s...\n\n", dir)
 
 	output, err := shell.Run("kubectl", "delete", "-f", dir)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ Cleanup failed.\n   %s\n", err)
+		fmt.Fprintf(os.Stderr, "Cleanup failed.\n   %s\n", err)
 		fmt.Fprintf(os.Stderr, "\n   Make sure '%s' exists and the resources were previously deployed.\n", dir)
 		os.Exit(1)
 	}
 
 	fmt.Println(output)
-	fmt.Println("\n✅ Cleanup complete. All resources removed.")
+	fmt.Println("\nCleanup complete. All resources removed.")
 }

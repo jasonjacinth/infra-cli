@@ -24,7 +24,7 @@ func init() {
 }
 
 func runSetup(cmd *cobra.Command, args []string) {
-	fmt.Println("🔍 Checking system dependencies...\n")
+	fmt.Println("Checking system dependencies...\n")
 
 	allGood := true
 
@@ -32,14 +32,14 @@ func runSetup(cmd *cobra.Command, args []string) {
 	if shell.IsInstalled("docker") {
 		version, err := shell.Run("docker", "--version")
 		if err != nil {
-			fmt.Println("  ⚠️  Docker is installed but not responding. Is Docker Desktop running?")
+			fmt.Println("  Docker is installed but not responding. Is Docker Desktop running?")
 			allGood = false
 		} else {
-			fmt.Printf("  ✅ Docker:  %s\n", version)
+			fmt.Printf("  Docker:  %s\n", version)
 		}
 	} else {
-		fmt.Println("  ❌ Docker:  not found in PATH")
-		fmt.Println("     ➜  Install from https://docs.docker.com/get-docker/")
+		fmt.Println("  Docker:  not found in PATH")
+		fmt.Println("     ->  Install from https://docs.docker.com/get-docker/")
 		allGood = false
 	}
 
@@ -51,22 +51,22 @@ func runSetup(cmd *cobra.Command, args []string) {
 			version, err = shell.Run("kubectl", "version", "--client")
 		}
 		if err != nil {
-			fmt.Println("  ⚠️  kubectl is installed but returned an error.")
+			fmt.Println("  kubectl is installed but returned an error.")
 			allGood = false
 		} else {
-			fmt.Printf("  ✅ kubectl: %s\n", version)
+			fmt.Printf("  kubectl: %s\n", version)
 		}
 	} else {
-		fmt.Println("  ❌ kubectl: not found in PATH")
-		fmt.Println("     ➜  Install from https://kubernetes.io/docs/tasks/tools/")
+		fmt.Println("  kubectl: not found in PATH")
+		fmt.Println("     ->  Install from https://kubernetes.io/docs/tasks/tools/")
 		allGood = false
 	}
 
 	// --- Summary ---
 	fmt.Println()
 	if allGood {
-		fmt.Println("🎉 All dependencies are installed. You're ready to go!")
+		fmt.Println("All dependencies are installed. You're ready to go!")
 	} else {
-		fmt.Println("⚠️  Some dependencies are missing. Please install them and re-run 'infra-cli setup'.")
+		fmt.Println("Some dependencies are missing. Please install them and re-run 'infra-cli setup'.")
 	}
 }

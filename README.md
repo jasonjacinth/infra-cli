@@ -70,12 +70,12 @@ infra-cli setup
 ```
 
 ```
-🔍 Checking system dependencies...
+Checking system dependencies...
 
-  ✅ Docker:  Docker version 27.x.x
-  ✅ kubectl: Client Version: v1.34.1
+  Docker:  Docker version 27.x.x
+  kubectl: Client Version: v1.34.1
 
-🎉 All dependencies are installed. You're ready to go!
+All dependencies are installed. You're ready to go!
 ```
 
 ### 2. Deploy the Sample Workload
@@ -85,12 +85,12 @@ infra-cli deploy --app nginx -e production
 ```
 
 ```
-🚀 Deploying 'nginx' to Kubernetes using k8s/deployment.yaml...
+Deploying 'nginx' to Kubernetes using k8s/deployment.yaml...
 
 deployment.apps/nginx created
 service/nginx created
 
-✅ 'nginx' deployed to Kubernetes.
+'nginx' deployed to Kubernetes.
 ```
 
 ### 3. Check Status
@@ -100,7 +100,7 @@ infra-cli status -e production
 ```
 
 ```
-☸️  Kubernetes Pod Status
+Kubernetes Pod Status
 ──────────────────────────────────────────────────
 NAME                     READY   STATUS    RESTARTS   AGE
 nginx-6b7f6db5c7-4xr2k  1/1     Running   0          30s
