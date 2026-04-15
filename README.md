@@ -187,3 +187,7 @@ project/
 This project is licensed under the MIT License.
 
 Developed and maintained by Jason Jacinth
+
+## License
+
+See [LICENSE](LICENSE) for details.
