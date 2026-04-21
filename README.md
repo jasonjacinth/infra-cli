@@ -1,6 +1,6 @@
 # Infra-CLI
 
-A lightweight, single-binary command-line tool that abstracts `kubectl` and `docker` commands into a simplified, developer-friendly workflow. Built to standardize infrastructure operations and reduce onboarding time for engineering teams.
+An enterprise-grade Developer Experience (DevEx) tool designed to provide a "paved path" for infrastructure operations. It abstracts the complexity of Kubernetes and Docker while enforcing strict operational guardrails and environment-aware safety checks to eliminate misconfigurations and reduce SRE support toil.
 
 ---
 
@@ -143,7 +143,7 @@ infra-cli rollback --app nginx -e production
 ```
 ```
 You are about to run 'rollback' against the PRODUCTION environment.
-Are you sure? [y/N]: 
+Are you sure? [y/N]:
 ```
 
 ---
