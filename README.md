@@ -125,6 +125,27 @@ infra-cli rollback --app nginx -e production
 infra-cli cleanup
 ```
 
+### 7. Enforcing Guardrails (Safety)
+
+Infra-CLI actively prevents accidental damage to the cluster.
+
+**Namespace Protection:**
+```bash
+infra-cli deploy --app nginx -e production -n kube-system
+```
+```
+[Guardrail Violation] Operations in the 'kube-system' namespace are restricted to cluster administrators
+```
+
+**Production Confirmation:**
+```bash
+infra-cli rollback --app nginx -e production
+```
+```
+You are about to run 'rollback' against the PRODUCTION environment.
+Are you sure? [y/N]: 
+```
+
 ---
 
 ## Command Reference
