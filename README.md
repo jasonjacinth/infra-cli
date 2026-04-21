@@ -1,6 +1,6 @@
 # Infra-CLI
 
-An enterprise-grade Developer Experience (DevEx) tool designed to provide a "paved path" for infrastructure operations. It abstracts the complexity of Kubernetes and Docker while enforcing strict operational guardrails and environment-aware safety checks to eliminate misconfigurations and reduce SRE support toil.
+A high-performance developer utility designed to standardize infrastructure operations. It abstracts the complexity of Kubernetes and Docker through a unified interface, enforcing strict operational guardrails and environment-aware safety checks to prevent misconfigurations and minimize manual support overhead.
 
 ---
 
