@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/jasonjacinth/infra-cli/internal/shell"
+	"github.com/jasonjacinth/infra-cli/internal/style"
 	"github.com/spf13/cobra"
 )
 
@@ -35,7 +36,7 @@ func runLogs(cmd *cobra.Command, args []string) {
 	app, _ := cmd.Flags().GetString("app")
 
 	if !shell.IsInstalled("kubectl") {
-		fmt.Fprintln(os.Stderr, "kubectl is not installed. Run 'infra-cli setup' to check dependencies.")
+		style.PrintError("kubectl is not installed. Run 'infra-cli setup' to check dependencies.")
 		os.Exit(1)
 	}
 
@@ -43,7 +44,7 @@ func runLogs(cmd *cobra.Command, args []string) {
 	case "local", "production":
 		runK8sLogs(app)
 	default:
-		fmt.Fprintf(os.Stderr, "Unknown environment: %s (use 'local' or 'production')\n", env)
+		style.PrintError("Unknown environment: %s (use 'local' or 'production')", env)
 		os.Exit(1)
 	}
 }
@@ -52,16 +53,18 @@ func runK8sLogs(app string) {
 	// Auto-resolve: find a pod whose name starts with the app name.
 	podName, err := findPodByApp(app)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
+		style.PrintError("%s", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("Tailing logs for pod '%s'...\n\n", podName)
+	style.PrintInfo("Tailing logs for pod '%s'...", podName)
+	fmt.Println()
 
 	// Stream logs directly to the terminal (Ctrl+C to stop).
 	err = shell.RunLive("kubectl", "logs", "-f", podName)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "\nFailed to tail logs for pod '%s'.\n   %s\n", podName, err)
+		style.PrintError("Failed to tail logs for pod '%s'.", podName)
+		fmt.Fprintln(os.Stderr, style.Subtle.Render(fmt.Sprintf("  %s", err)))
 		os.Exit(1)
 	}
 }

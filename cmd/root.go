@@ -27,7 +27,15 @@ func Execute() {
 	}
 }
 
+// RootCmd returns the root cobra.Command. It is exported for use in tests
+// that need to inspect the registered subcommand tree.
+func RootCmd() *cobra.Command {
+	return rootCmd
+}
+
 func init() {
 	// Persistent flags are available to this command and all subcommands.
 	rootCmd.PersistentFlags().StringP("environment", "e", "local", "Target environment: local or production")
+	rootCmd.PersistentFlags().StringP("namespace", "n", "default", "Kubernetes namespace to operate in (kube-system is restricted)")
+	rootCmd.PersistentFlags().Bool("force", false, "Bypass production confirmation prompts (for use in CI/CD pipelines)")
 }

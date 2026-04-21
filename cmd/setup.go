@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/jasonjacinth/infra-cli/internal/shell"
+	"github.com/jasonjacinth/infra-cli/internal/style"
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +26,8 @@ func init() {
 }
 
 func runSetup(cmd *cobra.Command, args []string) {
-	fmt.Println("Checking system dependencies...\n")
+	style.PrintHeader("Checking system dependencies...")
+	fmt.Println()
 
 	allGood := true
 
@@ -32,14 +35,14 @@ func runSetup(cmd *cobra.Command, args []string) {
 	if shell.IsInstalled("docker") {
 		version, err := shell.Run("docker", "--version")
 		if err != nil {
-			fmt.Println("  Docker is installed but not responding. Is Docker Desktop running?")
+			style.PrintWarning("  Docker is installed but not responding. Is Docker Desktop running?")
 			allGood = false
 		} else {
-			fmt.Printf("  Docker:  %s\n", version)
+			fmt.Printf("  %s  %s\n", style.Success.Render("Docker: "), version)
 		}
 	} else {
-		fmt.Println("  Docker:  not found in PATH")
-		fmt.Println("     ->  Install from https://docs.docker.com/get-docker/")
+		style.PrintError("  Docker:  not found in PATH")
+		fmt.Fprintln(os.Stderr, style.Subtle.Render("     ->  Install from https://docs.docker.com/get-docker/"))
 		allGood = false
 	}
 
@@ -51,22 +54,22 @@ func runSetup(cmd *cobra.Command, args []string) {
 			version, err = shell.Run("kubectl", "version", "--client")
 		}
 		if err != nil {
-			fmt.Println("  kubectl is installed but returned an error.")
+			style.PrintWarning("  kubectl is installed but returned an error.")
 			allGood = false
 		} else {
-			fmt.Printf("  kubectl: %s\n", version)
+			fmt.Printf("  %s %s\n", style.Success.Render("kubectl:"), version)
 		}
 	} else {
-		fmt.Println("  kubectl: not found in PATH")
-		fmt.Println("     ->  Install from https://kubernetes.io/docs/tasks/tools/")
+		style.PrintError("  kubectl: not found in PATH")
+		fmt.Fprintln(os.Stderr, style.Subtle.Render("     ->  Install from https://kubernetes.io/docs/tasks/tools/"))
 		allGood = false
 	}
 
 	// --- Summary ---
 	fmt.Println()
 	if allGood {
-		fmt.Println("All dependencies are installed. You're ready to go!")
+		style.PrintSuccess("All dependencies are installed. You're ready to go!")
 	} else {
-		fmt.Println("Some dependencies are missing. Please install them and re-run 'infra-cli setup'.")
+		style.PrintWarning("Some dependencies are missing. Please install them and re-run 'infra-cli setup'.")
 	}
 }

@@ -6,3 +6,18 @@ bin/
 
 # Go dependencies
 vendor/
+
+# Log files (written to tmp/ per project standards)
+tmp/
+
+# Walkthrough (generated, not for version control)
+walkthrough.md
+
+# Environment files
+.env
+
+# Editor configs
+.idea/
+.vscode/
+*.swp
+*.swo

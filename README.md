@@ -6,11 +6,7 @@ A lightweight, single-binary command-line tool that abstracts `kubectl` and `doc
 
 ## Why This Exists
 
-Managing Kubernetes clusters and Docker containers requires memorizing long, flag-heavy commands that vary between environments. **Infra-CLI** was designed to solve this by providing a unified interface that:
-
-- **Standardizes workflows** — one set of commands works across local Docker and remote Kubernetes environments.
-- **Reduces onboarding time** — new engineers can deploy, debug, and monitor services on day one with `infra-cli setup` and a handful of intuitive commands.
-- **Eliminates context-switching** — no need to remember whether you're running `docker ps` or `kubectl get pods`; just run `infra-cli status`.
+In large-scale microservice environments, application developers often spend too much time fighting infrastructure tooling instead of writing business logic. Infra-CLI was developed to treat the internal platform as a product, abstracting the complexity of local and remote container orchestration into a secure, "paved path" developer experience. It reduces developer cognitive load, abstracts environment parity, and enforces operational guardrails (like namespace protection and production confirmations), drastically reducing L1 support tickets for the SRE team.
 
 ## Features
 
@@ -19,6 +15,8 @@ Managing Kubernetes clusters and Docker containers requires memorizing long, fla
 | **Environment Abstraction** | Automatically routes commands to Docker (local) or Kubernetes (production) via the `-e` flag. |
 | **Pod Auto-Resolution** | `infra-cli logs --app my-service` automatically finds the pod `my-service-7d4b8c6f5-xk9zn` — no copy-pasting pod names. |
 | **Dependency Checker** | `infra-cli setup` validates your toolchain and provides install links for anything missing. |
+| **Namespace Protection** | Blocks operations against `kube-system` and other restricted namespaces at the guardrail layer — not at the cluster level. |
+| **Production Confirmation** | `deploy`, `rollback`, and `cleanup` require explicit `y/N` consent (or `--force`) when targeting production. |
 | **Cross-Platform Binary** | Compiles to a self-contained binary for macOS (ARM/Intel) and Linux — distribute via any internal repository. |
 
 ---
@@ -145,6 +143,8 @@ infra-cli cleanup
 | Flag | Short | Default | Description |
 |---|---|---|---|
 | `--environment` | `-e` | `local` | Target environment: `local` (Docker) or `production` (Kubernetes) |
+| `--namespace` | `-n` | `default` | Kubernetes namespace to operate in (`kube-system` is restricted) |
+| `--force` | — | `false` | Bypass production confirmation prompts (for CI/CD pipelines) |
 | `--help` | `-h` | — | Show help for any command |
 
 ---
@@ -153,23 +153,32 @@ infra-cli cleanup
 
 ```
 project/
-├── main.go                  # Entry point
-├── Makefile                 # Build targets (build, build-all, clean, run)
-├── go.mod                   # Go module definition
+├── main.go                      # Entry point
+├── Makefile                     # Build targets (build, build-all, clean, run, test, vet)
+├── go.mod                       # Go module definition
 ├── cmd/
-│   ├── root.go              # Root command + global flags
-│   ├── setup.go             # Dependency checker
-│   ├── deploy.go            # Deploy via docker-compose / kubectl apply
-│   ├── status.go            # Service health via docker ps / kubectl get pods
-│   ├── logs.go              # Log tailing with pod auto-resolution
-│   ├── rollback.go          # Rollback via docker restart / kubectl rollout undo
-│   └── cleanup.go           # Tear down test workloads
+│   ├── root.go                  # Root command + global flags (env, namespace, force)
+│   ├── version.go               # Version command (build metadata via ldflags)
+│   ├── setup.go                 # Dependency checker
+│   ├── deploy.go                # Deploy via kubectl apply (namespace-aware, prod-gated)
+│   ├── status.go                # Service health via docker ps / kubectl get pods
+│   ├── logs.go                  # Log tailing with pod auto-resolution
+│   ├── rollback.go              # Rollback (namespace-aware, prod-gated)
+│   ├── cleanup.go               # Tear down workloads (namespace-aware, prod-gated)
+│   ├── root_test.go             # Tests: subcommand registration
+│   └── deploy_test.go           # Tests: deploy flag validation
 ├── internal/
-│   └── shell/
-│       └── shell.go         # os/exec wrapper with error handling
+│   ├── guardrail/
+│   │   ├── guardrail.go         # Namespace protection + production confirmation logic
+│   │   └── guardrail_test.go    # Tests: allowed/restricted namespace enforcement
+│   ├── shell/
+│   │   ├── shell.go             # os/exec wrapper with error handling
+│   │   └── shell_test.go        # Tests: IsInstalled, Run success/failure
+│   └── style/
+│       └── style.go             # Centralized lipgloss terminal styles
 └── k8s/
-    ├── deployment.yaml      # Sample Nginx deployment (2 replicas)
-    └── service.yaml         # NodePort service on port 30080
+    ├── deployment.yaml          # Sample Nginx deployment (2 replicas)
+    └── service.yaml             # NodePort service on port 30080
 ```
 
 ---
@@ -178,16 +187,13 @@ project/
 
 - **Go** — compiles to a static, self-contained binary with zero runtime dependencies.
 - **[Cobra](https://github.com/spf13/cobra)** — industry-standard CLI framework for Go.
+- **[Lipgloss](https://github.com/charmbracelet/lipgloss)** — terminal styling library for colored, formatted output.
 - **os/exec** — wraps existing `docker` and `kubectl` binaries rather than importing full SDKs, keeping the codebase lean and uncomplicated.
 
 ---
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 Developed and maintained by Jason Jacinth
-
-## License
-
-See [LICENSE](LICENSE) for details.

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/jasonjacinth/infra-cli/internal/shell"
+	"github.com/jasonjacinth/infra-cli/internal/style"
 	"github.com/spf13/cobra"
 )
 
@@ -39,23 +40,24 @@ func runStatus(cmd *cobra.Command, args []string) {
 	case "production":
 		runK8sStatus(app)
 	default:
-		fmt.Fprintf(os.Stderr, "Unknown environment: %s (use 'local' or 'production')\n", env)
+		style.PrintError("Unknown environment: %s (use 'local' or 'production')", env)
 		os.Exit(1)
 	}
 }
 
 func runLocalStatus(app string) {
 	if !shell.IsInstalled("docker") {
-		fmt.Fprintln(os.Stderr, "Docker is not installed. Run 'infra-cli setup' to check dependencies.")
+		style.PrintError("Docker is not installed. Run 'infra-cli setup' to check dependencies.")
 		os.Exit(1)
 	}
 
-	fmt.Println("Docker Container Status")
-	fmt.Println(strings.Repeat("─", 50))
+	style.PrintHeader("Docker Container Status")
+	fmt.Println(style.Divider())
 
 	output, err := shell.Run("docker", "ps", "--format", "table {{.Names}}\t{{.Status}}")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to get Docker status. Is Docker Desktop running?\n   %s\n", err)
+		style.PrintError("Failed to get Docker status. Is Docker Desktop running?")
+		fmt.Fprintln(os.Stderr, style.Subtle.Render(fmt.Sprintf("  %s", err)))
 		os.Exit(1)
 	}
 
@@ -73,7 +75,7 @@ func runLocalStatus(app string) {
 			}
 		}
 		if !found {
-			fmt.Printf("\nNo containers found matching '%s'.\n", app)
+			style.PrintWarning("No containers found matching '%s'.", app)
 		}
 	} else {
 		fmt.Println(output)
@@ -82,12 +84,12 @@ func runLocalStatus(app string) {
 
 func runK8sStatus(app string) {
 	if !shell.IsInstalled("kubectl") {
-		fmt.Fprintln(os.Stderr, "kubectl is not installed. Run 'infra-cli setup' to check dependencies.")
+		style.PrintError("kubectl is not installed. Run 'infra-cli setup' to check dependencies.")
 		os.Exit(1)
 	}
 
-	fmt.Println("Kubernetes Pod Status")
-	fmt.Println(strings.Repeat("─", 50))
+	style.PrintHeader("Kubernetes Pod Status")
+	fmt.Println(style.Divider())
 
 	var output string
 	var err error
@@ -100,12 +102,13 @@ func runK8sStatus(app string) {
 	}
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to get pod status.\n   %s\n", err)
+		style.PrintError("Failed to get pod status.")
+		fmt.Fprintln(os.Stderr, style.Subtle.Render(fmt.Sprintf("  %s", err)))
 		os.Exit(1)
 	}
 
 	if output == "" {
-		fmt.Println("No pods found.")
+		style.PrintWarning("No pods found.")
 	} else {
 		fmt.Println(output)
 	}
