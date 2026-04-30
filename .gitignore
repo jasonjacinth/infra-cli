@@ -10,14 +10,16 @@ vendor/
 # Log files (written to tmp/ per project standards)
 tmp/
 
-# Walkthrough (generated, not for version control)
-walkthrough.md
-
 # Environment files
 .env
 
 # Editor configs
 .idea/
 .vscode/
+infra-cli-walkthrough.md
 *.swp
 *.swo
+
+# coding assistant configuration
+.agents/
+.cursor/

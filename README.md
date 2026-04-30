@@ -19,6 +19,17 @@ In large-scale microservice environments, application developers often spend too
 | **Production Confirmation** | `deploy`, `rollback`, and `cleanup` require explicit `y/N` consent (or `--force`) when targeting production. |
 | **Cross-Platform Binary** | Compiles to a self-contained binary for macOS (ARM/Intel) and Linux — distribute via any internal repository. |
 
+## SRE Features
+
+| Feature | SRE Concept | Description |
+|---|---|---|
+| **Canary Deployments** | Deployment Strategy | `deploy --strategy canary` scales to 1 replica, validates health, then prompts to promote or abort with automatic rollback. |
+| **Health-Validated Deploys** | Rollback Strategy | Every deploy waits for rollout completion and scans for unhealthy pods. Automatically rolls back on `CrashLoopBackOff`, `ImagePullBackOff`, or other failure states. |
+| **Chaos Engineering** | Resilience Testing | `chaos pod-kill --app nginx` randomly kills a pod, waits for Kubernetes to recreate it, and reports whether self-healing succeeded. |
+| **Blameless Postmortems** | Incident Management | `postmortem create --title "..." --severity critical` generates a structured postmortem document with timeline, 5-Whys root cause analysis, action items, and auto-captured cluster context. |
+| **SLO Validation** | SLI/SLO/SLA | `slo validate --app nginx` checks availability (replica readiness), restart budget (max 5 restarts), and pod stability (running for at least 5 minutes). |
+| **Capacity Analysis** | Capacity Planning | `capacity --app nginx` displays resource requests, limits, and actual usage with utilization percentages for CPU and memory. |
+
 ---
 
 ## Installation
@@ -153,11 +164,15 @@ Are you sure? [y/N]:
 | Command | Description | Key Flags |
 |---|---|---|
 | `infra-cli setup` | Check if Docker and kubectl are installed | — |
-| `infra-cli deploy` | Deploy an application | `--app`, `-e` |
+| `infra-cli deploy` | Deploy an application (with health validation) | `--app`, `-e`, `--strategy` |
 | `infra-cli status` | Show health of running services | `--app` (optional), `-e` |
 | `infra-cli logs` | Tail application logs (auto-resolves pod names) | `--app`, `-e` |
 | `infra-cli rollback` | Revert the last deployment | `--app`, `-e` |
 | `infra-cli cleanup` | Remove deployed test workloads | `--dir` (default: `k8s/`) |
+| `infra-cli chaos pod-kill` | Kill a random pod to test self-healing | `--app`, `-e` |
+| `infra-cli postmortem create` | Generate a blameless postmortem document | `--title`, `--severity`, `--output` |
+| `infra-cli slo validate` | Validate SLOs for an application | `--app`, `-e` |
+| `infra-cli capacity` | Analyze resource usage and capacity | `--app`, `-e` |
 
 ### Global Flags
 
@@ -181,16 +196,24 @@ project/
 │   ├── root.go                  # Root command + global flags (env, namespace, force)
 │   ├── version.go               # Version command (build metadata via ldflags)
 │   ├── setup.go                 # Dependency checker
-│   ├── deploy.go                # Deploy via kubectl apply (namespace-aware, prod-gated)
+│   ├── deploy.go                # Deploy with health validation, canary strategy, auto-rollback
 │   ├── status.go                # Service health via docker ps / kubectl get pods
 │   ├── logs.go                  # Log tailing with pod auto-resolution
 │   ├── rollback.go              # Rollback (namespace-aware, prod-gated)
 │   ├── cleanup.go               # Tear down workloads (namespace-aware, prod-gated)
+│   ├── chaos.go                 # Chaos engineering: pod-kill with recovery reporting
+│   ├── postmortem.go            # Blameless postmortem generator with cluster context
+│   ├── slo.go                   # SLO validation: availability, restarts, stability
+│   ├── capacity.go              # Capacity analysis: usage vs requests/limits
 │   ├── root_test.go             # Tests: subcommand registration
-│   └── deploy_test.go           # Tests: deploy flag validation
+│   ├── deploy_test.go           # Tests: deploy flag and strategy validation
+│   ├── chaos_test.go            # Tests: chaos subcommand and flag registration
+│   ├── postmortem_test.go       # Tests: postmortem subcommand and flag registration
+│   ├── slo_test.go              # Tests: SLO subcommand and flag registration
+│   └── capacity_test.go         # Tests: capacity command and flag registration
 ├── internal/
 │   ├── guardrail/
-│   │   ├── guardrail.go         # Namespace protection + production confirmation logic
+│   │   ├── guardrail.go         # Namespace protection + production/canary confirmation logic
 │   │   └── guardrail_test.go    # Tests: allowed/restricted namespace enforcement
 │   ├── shell/
 │   │   ├── shell.go             # os/exec wrapper with error handling
@@ -198,7 +221,7 @@ project/
 │   └── style/
 │       └── style.go             # Centralized lipgloss terminal styles
 └── k8s/
-    ├── deployment.yaml          # Sample Nginx deployment (2 replicas)
+    ├── deployment.yaml          # Sample Nginx deployment (2 replicas, probes, resource limits)
     └── service.yaml             # NodePort service on port 30080
 ```
 

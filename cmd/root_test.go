@@ -15,7 +15,7 @@ func TestRootCommandRegistered(t *testing.T) {
 	// A clean way to inspect commands is via the cobra.Command API.
 	root := cmd.RootCmd()
 
-	expectedSubs := []string{"setup", "deploy", "status", "logs", "rollback", "cleanup", "version"}
+	expectedSubs := []string{"setup", "deploy", "status", "logs", "rollback", "cleanup", "version", "chaos", "postmortem", "slo", "capacity"}
 
 	registered := make(map[string]bool)
 	for _, sub := range root.Commands() {

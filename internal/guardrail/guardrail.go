@@ -60,3 +60,23 @@ func ConfirmProduction(operation string, force bool) error {
 
 	return nil
 }
+
+// ConfirmCanaryPromotion prompts the user to promote a healthy canary
+// deployment to the full replica count or abort.
+func ConfirmCanaryPromotion(targetReplicas int) error {
+	style.PrintWarning("Canary is healthy. Promote to %d replicas?", targetReplicas)
+	fmt.Fprintf(os.Stderr, "%s ", style.Warning.Render("Promote? [y/N]:"))
+
+	reader := bufio.NewReader(os.Stdin)
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("failed to read promotion input: %w", err)
+	}
+
+	input = strings.TrimSpace(strings.ToLower(input))
+	if input != "y" && input != "yes" {
+		return fmt.Errorf("canary promotion declined by user")
+	}
+
+	return nil
+}

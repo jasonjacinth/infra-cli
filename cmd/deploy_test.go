@@ -43,3 +43,21 @@ func TestDeployHelpContainsExamples(t *testing.T) {
 		}
 	}
 }
+
+// TestDeployHasStrategyFlag confirms that the deploy command has --strategy registered.
+func TestDeployHasStrategyFlag(t *testing.T) {
+	root := cmd.RootCmd()
+
+	for _, sub := range root.Commands() {
+		if sub.Name() != "deploy" {
+			continue
+		}
+		flag := sub.Flags().Lookup("strategy")
+		if flag == nil {
+			t.Fatal("expected --strategy flag to be registered on the deploy command, but it was not found")
+		}
+		if flag.DefValue != "rolling" {
+			t.Errorf("expected --strategy default to be 'rolling', got '%s'", flag.DefValue)
+		}
+	}
+}
